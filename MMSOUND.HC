@@ -21,7 +21,9 @@ Adam("I64 SFX_LEN[0x3F];");
 #define SFX_MMJUMP 		0x12
 #define SFX_MMHIT 		0x13
 #define SFX_MMDEATH		0x14
-#define SFX_ENHIT		0x15
+#define SFX_MMPAUSE   0x15
+#define SFX_MMSELECT   0x16
+#define SFX_ENHIT		0x17
 
 SFX_OFS[9]=0;
 SFX_LEN[9]=0;
@@ -49,7 +51,7 @@ U0 PCSP()
   	    PCSP_PLAY=FALSE;
   	  };
   	};
-  	Sleep(0);
+  	Sleep(1);
   };
 };
 
@@ -86,4 +88,6 @@ LoadSfx("SFX_MMSHOT.RAW");
 LoadSfx("SFX_MMJUMP.RAW");
 LoadSfx("SFX_MMHIT.RAW");
 LoadSfx("SFX_MMDEATH.RAW");
+LoadSfx("SFX_MMPAUSE.RAW");
+LoadSfx("SFX_MMSELECT.RAW");
 LoadSfx("SFX_ENHIT.RAW");

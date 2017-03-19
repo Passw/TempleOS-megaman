@@ -186,7 +186,6 @@ U0 ReadyMsg() {
         if (RMFlop==0) { Text("READY", 262, 216, WHITE); }
         RMFlop++;
         if (RMFlop>1) { RMFlop = 0; };
-        GrUpdateScrn;
         Sleep(60);
     };
 };
@@ -195,25 +194,21 @@ U0 MMTeleportIn() {
         UpdateBgr;
         MMSprite(SPR_Megaman, MMInvFlop, MMX, TelY, ((32*3)*5), ((32*3)*0), ((32*3)*6)-1, ((32*3)*1)-1, MMDir);
         DrawMMLifeMeter;
-        GrUpdateScrn;
-        Sleep(0);
+        Sleep(1);
     };
     Sfx(SFX_MMTELIN);
     UpdateBgr;
     MMSprite(SPR_Megaman, MMInvFlop, MMX, MMY-MMJumpY, ((32*3)*5), ((32*3)*1)+2, ((32*3)*6)-1, ((32*3)*2)-1, MMDir);
     DrawMMLifeMeter;
-    GrUpdateScrn;
-    Sleep(0);
+    Sleep(1);
     UpdateBgr;
     MMSprite(SPR_Megaman, MMInvFlop, MMX, MMY-MMJumpY, ((32*3)*5), ((32*3)*2)+2, ((32*3)*6)-1, ((32*3)*3)-1, MMDir);
     DrawMMLifeMeter;
-    GrUpdateScrn;
-    Sleep(0);
+    Sleep(1);
     UpdateBgr;
     MMSprite(SPR_Megaman, MMInvFlop, MMX, MMY-MMJumpY, ((32*3)*5), ((32*3)*0), ((32*3)*6)-1, ((32*3)*1)-1, MMDir);
     DrawMMLifeMeter;
-    GrUpdateScrn;
-    Sleep(0);
+    Sleep(1);
 };
 U0 InitGameSettings() {
     BgrIncrX=0;
@@ -262,6 +257,71 @@ U0 InitGameSettings() {
     NewEnemy(MMX+(16*MMPixScale)+(48*MMPixScale), MMY, 15, 0, 10, 1, 0);
     NewEnemy(MMX+(128*MMPixScale)+(48*MMPixScale), MMY, 15, 0, 10, 1, 0);
 };
+
+U0 ItemSelect()
+{
+  Bool xblk=FALSE;
+  Bool xcur=FALSE;
+  I64 iSysTimerCnt;
+  I64 isx=36;
+  I64 isy=60;
+  I64 isxctr=0;
+  I64 isyctr=0;
+  Sfx(SFX_MMPAUSE); 
+  while (isyctr<14) {
+    isx=36;
+    isxctr=0;
+    while (isxctr<10) {
+        iSysTimerCnt=SysTimerRead;
+        xblk=FALSE;
+        if (isyctr>0 && isyctr<13) {
+          if (isxctr>0 && isxctr<9) {
+            xblk=TRUE;
+          };
+        };
+        if (xblk) {
+          GrBlot(,258+isx,16+isy,IX_WND);
+        } else {
+          GrBlot(,252+isx,12+isy,IX_BORDER);
+        };
+        while (SysTimerRead<iSysTimerCnt+550) {
+          Sleep(1);
+        };
+        isx+=24;
+        isxctr++;
+    };
+    isy+=24;
+    isyctr++;
+  };
+  // 24
+
+  Text("  P", 319, 93+(24*1), WHITE);
+  Text("  EXIT", 319, 93+(24*10), WHITE);
+
+  while (ScanKey) { Sleep(1); };
+  iSysTimerCnt=SysTimerRead;
+  while (SysTimerRead<iSysTimerCnt+180000) {
+    Sleep(1);
+  };
+
+  while (InU8(0x60)!=0x1C) {
+    Sleep(100);
+    if (xcur) {
+      Text(">", 319, 93+(24*1), LTGRAY);
+    } else {
+      GrBlot(,319,93+(24*1),IX_WND);
+    };
+    if (!xcur) { xcur=TRUE; } else { xcur=FALSE; };
+  };
+
+  iSysTimerCnt=SysTimerRead;
+  while (SysTimerRead<iSysTimerCnt+180000) {
+    Sleep(1);
+  };
+  while (InU8(0x60)==0x1C) { Sleep(1); };
+  while (ScanKey) { Sleep(1); };
+}
+
 U0 GameLoop() {
     UpdateBgr;
     ReadyMsg;
@@ -582,16 +642,18 @@ U0 GameLoop() {
             if (MMInvFlop>1) { MMInvFlop = 0; };
         };
         if (MMInvCtr>48) { MMInvCtr = 0; MMInvFlop = 0; };
+        if (MMScanCode==0x1C && MMDeath==0) {
+          ItemSelect;
+        };
         DrawMMLifeMeter;
         DrawDebugText(FALSE);
-        GrUpdateScrn;
         while (SysTimerRead<SysTimerCnt+60000) {
-            Sleep(0);
+            Sleep(1);
         };
     };
 };
 // Start Application.
-U0 MegaMan() {
+U0 MegaMan(I64 sfx_cpu=0) {
     LoadSprites;
     MMExit = 0;
     SettingsPush;
@@ -610,9 +672,8 @@ U0 MegaMan() {
         *gr.fp_draw_ms = &HideMs;
         DCFill(Buffer,TRANSPARENT);
         Sfx(MUS_DEMO);
-        Spawn(&PCSP);
+        Spawn(&PCSP,,,sfx_cpu);
         GameLoop;
-        GrUpdateScrn;
     };
     // Exit game.
     Sfx(MUS_STOP);
@@ -623,7 +684,6 @@ U0 MegaMan() {
     DCFill(DCAlias(),TRANSPARENT);
     *gr.fp_draw_grab_ms = PtrMsGrab;
     *gr.fp_draw_ms = PtrMsStd;
-    GrUpdateScrn;
     DocClear;
     SettingsPop;
 };

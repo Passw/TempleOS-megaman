@@ -15,6 +15,8 @@ U0 Text(U8 *_Text, I64 ScrOffsetX, I64 ScrOffsetY, I64 _Color) {
         // Alpha
         if(_Text[TextOffset]>0x40 && _Text[TextOffset]<0x5B) { MMFontOffsetX = 24*(_Text[TextOffset]-0x41); MMFontOffsetY = 27; };
         if(_Text[TextOffset]>0x51 && _Text[TextOffset]<0x5B) { MMFontOffsetX += 2; };
+        // Selector
+        if(_Text[TextOffset]==0x3E) { MMFontOffsetX = 48; MMFontOffsetY = 159; };
         FontClip = DCExt(MMFont, MMFontOffsetX, MMFontOffsetY, MMFontOffsetX+23, MMFontOffsetY+23);
         GrBlot(Buffer, ScrOffsetX+ScrOffsetIncr, ScrOffsetY, FontClip);
         DCDel(FontClip);

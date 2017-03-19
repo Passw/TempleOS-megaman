@@ -9,3 +9,9 @@ Mega Man for TempleOS
     #include "MEGAMAN";
     MegaMan;
 ```
+
+To play sound effects on a different core than the game Task (less distortion), use:
+
+```
+    Megaman(cpu_num);
+```
